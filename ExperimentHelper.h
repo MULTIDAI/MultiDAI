@@ -21,35 +21,39 @@ enum tree_type { ckd = 0,
                  modularlazyckd = 8,
                  dd1r_cp = 9,
                  hdd1r = 10,
+                 hdd1c = 11,
+                 hdd1r_l = 12,
+                 hdd1c_l = 13,
 };
 
 using valueIndex = typename std::pair< size_t, value_t >;
 using valueIndexArr = typename std::vector< valueIndex >;
 using dsec = std::chrono::duration<double>;
 using query_t = std::pair<point_t, point_t>;
-using queryList = std::vector<query_t >;
+using query_vec = std::vector<query_t >;
 class E {
 public:
   static std::map<std::string, std::string> data_sets;
   static std::map<std::string, std::string> query_sets;
   static std::map<tree_type, std::string> tree_colors;
+  static std::map<tree_type, std::string> tree_point_types;
   static std::pair<KDTree *, double> init_tree(tree_type t, pointVec points, size_t final_partition_size, uint strategy_switch_size);
-  static double avg_tree_cumulative(pointVec points, tree_type type, queryList queries, double avg_runs, size_t final_partition_size = 0);
-  static double measure_tree_cumulative(pointVec points, tree_type type, queryList queries, size_t final_partition_size, uint strategy_switch_size, StaticKDTree* verification_tree);
-  static double measure_variable_data(pointVec points, tree_type type, queryList queries, size_t final_partition_size, uint strategy_switch_size, StaticKDTree* verification_tree);
+  static double avg_tree_cumulative(pointVec points, tree_type type, query_vec queries, double avg_runs, size_t final_partition_size = 0);
+  static double measure_tree_cumulative(pointVec points, tree_type type, query_vec queries, size_t final_partition_size, uint strategy_switch_size, StaticKDTree* verification_tree);
+  static double measure_variable_data(pointVec points, tree_type type, query_vec queries, size_t final_partition_size, uint strategy_switch_size, StaticKDTree* verification_tree);
   static double measure_query_time(KDTree* tree, query_t query, StaticKDTree* verification_tree);
   static pointVec query_res_scan(point_t low, point_t high, pointVec allPoints);
   static bool verify_query_res(point_t low, point_t high, pointVec allPoints, pointIndexArr query_res);
-  static void exec_queries(KDTree* tree, queryList queries);
+  static void exec_queries(KDTree* tree, query_vec queries);
   static pointIndexArr exec_query(KDTree* tree, query_t query);
   static pointVec pointIndexArr_to_PointVec(pointIndexArr pt_index_arr);
   static bool shouldIncludePoint(point_t pt, point_t low, point_t high);
   static bool vector_equality(pointVec v1, pointVec v2);
-  static std::vector<double> measure_convergence(tree_type t, queryList queries, pointVec points, size_t final_partition_size, uint strategy_switch_size, StaticKDTree* verification_tree);
-  static std::vector<double> avg_measure_convergence(tree_type t, queryList queries, pointVec points, double avg_runs, size_t final_partition_size, uint strategy_switch_size);
-  static valueIndexArr measure_final_partition_size(tree_type t, queryList queries, pointVec points,
+  static std::vector<double> measure_convergence(tree_type t, query_vec queries, pointVec points, size_t final_partition_size, uint strategy_switch_size, StaticKDTree* verification_tree);
+  static std::vector<double> avg_measure_convergence(tree_type t, query_vec queries, pointVec points, double avg_runs, size_t final_partition_size, uint strategy_switch_size);
+  static valueIndexArr measure_final_partition_size(tree_type t, query_vec queries, pointVec points,
                                                     size_t max_final_partition_size, int step, int init, uint strategy_switch_size, StaticKDTree* verification_tree);
-  static std::vector<double> avg_measure_final_partition_size(tree_type t, queryList queries, pointVec points, double avg_runs, size_t max_final_partition_size);
+  static std::vector<double> avg_measure_final_partition_size(tree_type t, query_vec queries, pointVec points, double avg_runs, size_t max_final_partition_size);
 
   static std::string generate_file_name(std::string base, std::string data_set_name,
                                         size_t data_size, size_t query_size);

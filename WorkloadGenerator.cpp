@@ -33,6 +33,90 @@ query_vec Gen::generate_random_queries_in_bounded_sections(double sections, doub
   return res;
 }
 
+query_vec Gen::benchmarking_adaptive_indexing_random(double phases, std::vector<double> queries_per_phase,
+                                                     std::vector<double> phase_sizes,
+                                                     std::vector<std::pair<point_t, point_t>> query_sizes,
+                                                     int dims, bool include_phase_query){
+  query_vec res;
+  std::default_random_engine re;
+  for (uint phase = 0; phase < phases; phase++) {
+    std::vector<std::uniform_real_distribution<double>> bounds;    
+    std::uniform_real_distribution<double> unif(0.0,1.0);
+    query_t phase_query;
+    for (int dim = 0; dim < dims; dim++) {
+      double low = unif(re);
+      double high = low + phase_sizes[phase];
+      bounds.push_back(std::uniform_real_distribution<double>(low, high));
+      phase_query.first.push_back(low);
+      phase_query.second.push_back(high);
+    }
+    if (include_phase_query)
+      res.push_back(phase_query);
+    for (int query_num = 0; query_num < queries_per_phase[phase]; query_num++) {
+      res.push_back(generate_query(&re, bounds, query_sizes[phase].first, query_sizes[phase].second));
+    }
+  }
+  return res;
+}
+
+query_vec Gen::benchmarking_adaptive_indexing_overlap(double phases, std::vector<double> queries_per_phase,
+                                                      std::vector<double> phase_sizes, std::vector<double> phase_movement,
+                                                      std::vector<std::pair<point_t, point_t>> query_sizes,
+                                                      int dims, bool include_phase_query){
+  query_vec res;
+  std::default_random_engine re;
+  std::vector<std::uniform_real_distribution<double>> prev_bounds;
+  std::uniform_real_distribution<double> unif_default(0.0,1.0);
+  for (int dim = 0; dim < dims; dim++){
+    prev_bounds.push_back(unif_default);
+  }
+  for (uint phase = 0; phase < phases; phase++) {
+    std::vector<std::uniform_real_distribution<double>> bounds;    
+    query_t phase_query;
+    for (int dim = 0; dim < dims; dim++) {
+      double p1 = prev_bounds[dim](re) + phase_movement[phase];
+      double p2 = p1 + phase_sizes[phase];
+      double low;
+      double high;
+      if (p2 > 1){
+        p2 = p1 - phase_sizes[phase];
+        low = p2;
+        high = p1;
+      } else {
+        low = p1;
+        high = p2;
+      }
+      phase_query.first.push_back(low);
+      phase_query.second.push_back(high);
+      bounds.push_back(std::uniform_real_distribution<double>(low, high));
+    }
+    if (include_phase_query)
+      res.push_back(phase_query);
+    for (int query_num = 0; query_num < queries_per_phase[phase]; query_num++) {
+      res.push_back(generate_query(&re, bounds, query_sizes[phase].first, query_sizes[phase].second));
+    }
+    prev_bounds = bounds;
+  }
+  return res;
+}
+
+query_t Gen::generate_query(std::default_random_engine* re, std::vector<std::uniform_real_distribution<double>> bounds, point_t min_width, point_t max_width) {
+  if (!(bounds.size() == min_width.size() && bounds.size() == max_width.size())) {
+    OUT << "Input parameters have different sizes: " << bounds.size() << ", " << min_width.size() << ", " << max_width.size() << "\n";
+    return query_t(point_t(0), point_t(0));
+  }
+  point_t lower_bound;
+  point_t upper_bound;
+  for (uint dim = 0; dim < bounds.size(); dim++) {
+    double current_lower = bounds[dim](*re);
+    lower_bound.push_back(current_lower);
+    std::uniform_real_distribution<double> upper_range(current_lower + min_width[dim], current_lower + max_width[dim]);
+    upper_bound.push_back(upper_range(*re));
+  }
+  return query_t(lower_bound, upper_bound);
+}
+
+
 query_vec Gen::generate_random_workload(int amount, double query_max_size, int dimensionality){
   std::uniform_real_distribution<double> unif(0.0,1.0);
   std::default_random_engine re;

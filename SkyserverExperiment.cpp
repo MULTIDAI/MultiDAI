@@ -4,25 +4,27 @@
 SkyserverExperiment::~SkyserverExperiment() = default;
 
 SkyserverExperiment::SkyserverExperiment(std::string data_set_name_, std::string query_set_name_,
-                                             long num_points_, long num_queries_, int dimensionality_,
+                                         long num_points_, long num_queries_, int dimensionality_,
                                          uint strategy_switch_size_,  StaticKDTree* verification_tree_,
-                                         plot_exps plot_exps_) :
+                                         plot_exps plot_exps_, bool plot_only_) :
   Experiment(data_set_name_, query_set_name_, num_points_, num_queries_, dimensionality_,
-             strategy_switch_size_, verification_tree_), plot_experiments(plot_exps_){
+             strategy_switch_size_, verification_tree_), plot_experiments(plot_exps_), plot_only(plot_only_){
   experiment_name = "Skyserver";
   plotcustomization.logx = true;
   plotcustomization.exp_x = true;
   plotcustomization.exp_y = true;
   plotcustomization.ylabel_offset = 1;
-  // DataImporter importer;
-  // std::string data_set = E::data_sets[data_set_name];
-  // data = importer.load_all_data(data_set, dimensionality);
-  // std::string query_set = E::query_sets[query_set_name];
-  // queries = importer.load_all_queries(query_set, dimensionality);
+  if (!plot_only){
+    DataImporter importer;
+    std::string data_set = E::data_sets[data_set_name];
+    data = importer.load_all_data(data_set, dimensionality);
+    std::string query_set = E::query_sets[query_set_name];
+    queries = importer.load_all_queries(query_set, dimensionality);
+  }
 }
 
 valueIndexArr SkyserverExperiment::run_(tree_type tree){
-  std::vector<double> time = E::measure_convergence(tree, queries, data, final_partition_size, strategy_switch_size, verification_tree);
+  std::vector<double> time = E::measure_convergence(tree, queries, data, get_final_partition_size(tree), strategy_switch_size, verification_tree);
   valueIndexArr ret;
   // time[1] += time[0];
   for (double i = 0; i < time.size(); i++)
@@ -37,8 +39,10 @@ std::vector<std::pair<std::string, tree_type>> SkyserverExperiment::generate_con
   
   for (tree_type tree : trees){
     filename f = generate_data_file_name(tree);
-    if (!Experiment::file_exists(f))
+    if (!Experiment::file_exists(f)){
+      OUT << "WARNING!!! " << f << " does not exist.\n";
       continue;
+    }
     std::vector<std::pair<double, double>> time = importer.load_experiment_result(f);
     valueIndexArr conv_time;
     time[1].second += time[0].second;
@@ -50,7 +54,7 @@ std::vector<std::pair<std::string, tree_type>> SkyserverExperiment::generate_con
       conv_time.push_back(valueIndex(time[i].first, time[i].second));
       if (i / val == 10)
         val = i;
-      step_val = i * 1.002;
+      step_val = i * 1.003;
     }
     ret.push_back(std::pair<std::string, tree_type>(writer.write_file_data(generate_data_file_name(tree, "_Convergence"),
                                                                            conv_time, E::tree_string(tree)), tree));
@@ -64,13 +68,15 @@ std::vector<std::pair<std::string, tree_type>> SkyserverExperiment::generate_cum
   
   for (tree_type tree : trees){
     filename f = generate_data_file_name(tree);
-    if (!Experiment::file_exists(f))
+    if (!Experiment::file_exists(f)){
+      OUT << "WARNING!!! " << f << " does not exist.\n";
       continue;
+    }
     std::vector<std::pair<double, double>> time = importer.load_experiment_result(f);
     valueIndexArr cum_time;
     value_t acc = 0;
     size_t counter = 0;
-    int step = 100;
+    int step = time.size() / 1000;
     for (std::pair<double, double> v : time){
       acc += v.second;
       if ((counter % step) == 0)

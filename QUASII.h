@@ -11,7 +11,7 @@ enum slice_type
 
 class QUASII : public KDTree {
 private:
-  std::vector<size_t> r;
+  std::vector<size_t> tau;
   KDNodePtrs refine(KDNodePtr branch, point_t low, point_t high, size_t dim);
   slice_type determineSliceType(KDNodePtr branch, point_t low, point_t high, size_t dim);
   KDNodePtrs slice_artificial(KDNodePtr branch, point_t low, point_t high, size_t dim);

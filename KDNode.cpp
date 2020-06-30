@@ -56,19 +56,22 @@ KDNode::~KDNode() = default;
 value_t KDNode::coord(const size_t &idx) { return x.at(idx); }
 KDNodePtr KDNode::get_slice(value_t key) { return CI[key]; }
 void KDNode::add_slice(value_t key, KDNodePtr val) {
+  val->level = level + 1;
   CI[key] = val;
 }
 
-void KDNode::add_default_child() {
+KDNodePtr KDNode::add_default_child() {
   KDNodePtr new_child = std::make_shared< KDNode >(begin, end, min_bound,
                                                    max_bound, (dim+1) % min_bound.size());
   add_slice(min_bound[(dim+1)% min_bound.size()], new_child);
+  return new_child;
 }
 
-void KDNode::add_child(size_t dim_) {
+KDNodePtr KDNode::add_child(size_t dim_) {
   KDNodePtr new_child = std::make_shared< KDNode >(begin, end, min_bound,
                                                    max_bound, dim_ % min_bound.size());
   add_slice(min_bound[(dim_ % min_bound.size())], new_child);
+  return new_child;
 }
 
 size_t KDNode::get_size() { return CI.size(); }

@@ -2,8 +2,18 @@
 #include "Helper.h"
 
 
+inline bool DataImporter::file_exists (const std::string& name) {
+  struct stat buffer;   
+  return (stat (name.c_str(), &buffer) == 0); 
+}
+
+
 std::vector<std::pair<double, double>> DataImporter::load_experiment_result(filename file){
-  std::vector<std::pair<double, double>> res;
+  std::vector<std::pair<double, double>> res = {};
+  if (!file_exists(file)) {
+    OUT << file << "does not exist\n";
+    return res;
+  }
   std::ifstream infile(file);
   std::string line;
   std::getline(infile, line);
@@ -77,8 +87,8 @@ pointVec DataImporter::load_all_data(filename file, int dimensionality){
   return res;
 }
 
-queryList DataImporter::loadQueries(filename file, int amount, int dimensionality){
-  queryList res;
+query_vec DataImporter::loadQueries(filename file, int amount, int dimensionality){
+  query_vec res;
   std::ifstream infile(file);
   std::string line;
   while (std::getline(infile, line) && amount > 0){
@@ -86,9 +96,7 @@ queryList DataImporter::loadQueries(filename file, int amount, int dimensionalit
     int method, row;
     iss >> method;
     iss >> row;
-    value_t data_point;
     point_t temp;
-
     std::pair<point_t,point_t> query = read_query(iss, dimensionality);
     point_t low = query.first;
     point_t high = query.second;
@@ -109,8 +117,8 @@ queryList DataImporter::loadQueries(filename file, int amount, int dimensionalit
   return res;
 }
 
-queryList DataImporter::load_all_queries(filename file, int dimensionality){
-  queryList res;
+query_vec DataImporter::load_all_queries(filename file, int dimensionality){
+  query_vec res;
   std::ifstream infile(file);
   std::string line;
   while (std::getline(infile, line)){

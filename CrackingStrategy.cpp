@@ -32,7 +32,7 @@ CrackingStrategy::query_loc CrackingStrategy::query_location(point_t lower_bound
   }
 }
 
-pointIndexArr CrackingStrategy::crack(KDNodePtr branch, point_t low, point_t high, size_t dim, KDTree* tree) {
+pointIndexArr CrackingStrategy::crack(KDNodePtr branch, point_t low, point_t high, size_t dim, KDTree* tree, int level) {
   std::cout << "WARNING: SOMEONE IS USING EMPTY CRACK\n";
   return pointIndexArr();
 }

@@ -1,14 +1,42 @@
-#include "HybridKDTree.h"
+#include "HybridKDTree_level.h"
 
-HybridKDTree::HybridKDTree(pointVec point_array, CrackingStrategy* C_, size_t min_size_,
-                           uint strategy_switch_size_) :
-  KDTree(point_array, min_size_), strategy_switch_size(strategy_switch_size_), C(C_) {
+HybridKDTree_level::HybridKDTree_level(pointVec point_array, CrackingStrategy* C_, size_t min_size_,
+                                       uint strategy_switch_level_) :
+  KDTree(point_array, min_size_), C(C_), strategy_switch_level(strategy_switch_level_) {
   size_t dim = point_array[0].size();
+
+  
+  strategy_switch_level = dim * 3;
 
   root->add_default_child();
 }
 
-pointIndexArr HybridKDTree::QUASII_query_(KDNodePtr branch, point_t low, point_t high, size_t dim, int branch_size) {
+bp_pair HybridKDTree_level::traverse_tree_level(KDNodePtr branch, point_t low,
+                                                point_t high, size_t level){
+  int next_level = level + 1;
+  int dim = level % low.size();
+  pointIndexArr ret = pointIndexArr();
+  if (branch->get_size() > 0){
+    ci_iter it = branch->find_slice(low[dim]);
+    while (it != branch->CI.end() && it->first < high[dim]){
+      point_t new_low(low);
+      point_t new_high(high);
+      if(low[dim] < it->second->min_bound[dim]){
+        new_low[dim] = it->second->min_bound[dim];
+      }
+      if(high[dim] > it->second->max_bound[dim]){
+        new_high[dim] = it->second->max_bound[dim];
+      }
+      pointIndexArr nodes = query_(it->second, new_low, new_high, next_level);
+      ret.insert(ret.end(), nodes.begin(), nodes.end());
+      it++;
+    }
+    return bp_pair(true, ret);
+  }
+  return bp_pair(false, ret);
+}
+
+pointIndexArr HybridKDTree_level::QUASII_query_(KDNodePtr branch, point_t low, point_t high, size_t dim, int branch_size) {
   pointIndexArr ret;
   KDNodePtrs new_children;
   ci_iter it = branch->find_slice(low[dim]);
@@ -51,7 +79,7 @@ pointIndexArr HybridKDTree::QUASII_query_(KDNodePtr branch, point_t low, point_t
 }
 
 
-pointIndexArr HybridKDTree::query_(KDNodePtr branch, point_t low, point_t high, size_t dim) {
+pointIndexArr HybridKDTree_level::query_(KDNodePtr branch, point_t low, point_t high, size_t level) {
   bp_pair subset_check = check_inclusion(branch, low, high);
   if (subset_check.first){
     return subset_check.second;
@@ -61,7 +89,7 @@ pointIndexArr HybridKDTree::query_(KDNodePtr branch, point_t low, point_t high, 
     return final_partition_extract(branch, low, high);
   }
   
-  if (std::prev(branch->end)->second - branch->begin->second <= strategy_switch_size) {
+  if (level >= strategy_switch_level) {
     if(branch->CI.size() == 0){
       branch->add_child(0);
     }
@@ -72,25 +100,22 @@ pointIndexArr HybridKDTree::query_(KDNodePtr branch, point_t low, point_t high, 
       float root_dim = 1.0/(low.size());
       float n_over_tau = ((float)branch_size)/((float) min_size);
       float r = std::ceil(std::pow(n_over_tau, root_dim));
-      // tau.insert(std::pair<int, int>(level, 1));
       tau[branch_size] = std::vector<size_t>();
       for (int l = low.size()-1; l >= 0; l--){
-        // OUT << "branch size: " << branch_size << ", adding tau: " << std::pow(r, l) * min_size << "\n";
         tau[branch_size].push_back(std::pow(r, l) * min_size);
       }
     }
     return QUASII_query_(branch, low, high, 0, branch_size);
   }
 
-  bp_pair traverse_check = traverse_tree(branch, low, high, dim);
+  bp_pair traverse_check = traverse_tree_level(branch, low, high, level);
   if (traverse_check.first){
     return traverse_check.second;
   }
-
-  return C->crack(branch, low, high, dim, this);
+  return C->crack(branch, low, high, level % low.size(), this, level);
 }
 
-KDNodePtrs HybridKDTree::refine(KDNodePtr branch, point_t low, point_t high, size_t dim, int branch_size){
+KDNodePtrs HybridKDTree_level::refine(KDNodePtr branch, point_t low, point_t high, size_t dim, int branch_size){
 
   if (branch->get_partition_size() <= tau[branch_size][dim]) 
     return new_KDNodePtrs(branch);
@@ -111,6 +136,7 @@ KDNodePtrs HybridKDTree::refine(KDNodePtr branch, point_t low, point_t high, siz
     cracks = slice_artificial(branch, low, high, dim, branch_size);
   }
   for (KDNodePtr s : *cracks) {
+    s->level = branch->level;
     bool intersection_not_empty = H::intersection(low[dim], high[dim], s->min_bound[dim], s->max_bound[dim]);
     if (s->get_partition_size() > tau[branch_size][dim] && intersection_not_empty &&
         low[dim] != s->max_bound[dim] && high[dim] != s->min_bound[dim]) {
@@ -123,8 +149,8 @@ KDNodePtrs HybridKDTree::refine(KDNodePtr branch, point_t low, point_t high, siz
   return ret;
 }
 
-HybridKDTree::slice_type HybridKDTree::determineSliceType(KDNodePtr branch, point_t low,
-                                                          point_t high, size_t dim){
+HybridKDTree_level::slice_type HybridKDTree_level::determineSliceType(KDNodePtr branch, point_t low,
+                                                                      point_t high, size_t dim){
   if (high[dim] > branch->max_bound[dim] && low[dim] < branch->min_bound[dim]){
     return s_artificial;
   } else if (high[dim] < branch->max_bound[dim] && low[dim] > branch->min_bound[dim]){
@@ -134,8 +160,8 @@ HybridKDTree::slice_type HybridKDTree::determineSliceType(KDNodePtr branch, poin
   }
 }
 
-KDNodePtrs HybridKDTree::slice_artificial(KDNodePtr branch, point_t low,
-                                          point_t high, size_t dim, int branch_size){
+KDNodePtrs HybridKDTree_level::slice_artificial(KDNodePtr branch, point_t low,
+                                                point_t high, size_t dim, int branch_size){
 
   if (branch->get_partition_size() <= tau[branch_size][dim]) {
     return std::make_shared<std::vector<KDNodePtr>>(std::vector<KDNodePtr>{branch});

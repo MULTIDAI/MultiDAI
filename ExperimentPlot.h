@@ -5,8 +5,8 @@
 struct axis_range {
   axis_range(): use(false),low(0),high(0) { }   // default Constructor
   bool use = false;
-  int low = 0;
-  int high = 0;
+  double low = 0;
+  double high = 0;
 };
 
 struct key_location {
@@ -19,7 +19,7 @@ struct plot_customization {
   plot_customization(): enable_xtics(true), enable_ytics(true), enable_xlabel(true), enable_ylabel(true),
                         enable_keys(false), logx(false), logy(true), exp_x(false), exp_y(false),
                         short_xlabel(true), point_size(0.5), ylabel_offset(2.5),
-                        ylabel_name(""), yrange(axis_range()), keylocation(key_location()) {}
+                        ylabel_name(""), yrange(axis_range()), xrange(axis_range()), keylocation(key_location()) {}
   bool enable_xtics = true;
   bool enable_ytics = true;
   bool enable_xlabel = true;
@@ -34,6 +34,7 @@ struct plot_customization {
   double ylabel_offset = 2.5;
   std::string ylabel_name;
   axis_range yrange;
+  axis_range xrange;
   key_location keylocation;
 };
 

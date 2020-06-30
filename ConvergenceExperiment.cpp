@@ -19,8 +19,8 @@ valueIndexArr ConvergenceExperiment::run_(tree_type tree){
   std::string data_set = E::data_sets[data_set_name];
   pointVec data = importer.loadData(data_set, num_points, dimensionality);
   std::string query_set = E::query_sets[query_set_name];
-  queryList queries = importer.loadQueries(query_set, num_queries, dimensionality);
-  std::vector<double> time = E::measure_convergence(tree, queries, data, final_partition_size, strategy_switch_size, verification_tree);
+  query_vec queries = importer.loadQueries(query_set, num_queries, dimensionality);
+  std::vector<double> time = E::measure_convergence(tree, queries, data, get_final_partition_size(tree), strategy_switch_size, verification_tree);
   valueIndexArr ret;
   time[1] += time[0];
   for (double i = 1; i < time.size(); i++)

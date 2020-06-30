@@ -4,12 +4,14 @@
 
 QUASII::QUASII(pointVec point_array, size_t min_size_) : KDTree(point_array, min_size_) {
   size_t dim = point_array[0].size();
-  r = std::vector<size_t>();
-  for (uint d = 0; d < dim; d++){
-    float root = 1.0/(d+1);
-    float n_over_tau = ((float)point_array.size())/((float) min_size);
-    float f = std::pow(n_over_tau, root);
-    r.push_back(std::ceil(f));
+
+  float root_dim = 1.0/(dim);
+  float n_over_tau = ((float)point_array.size())/((float) min_size);
+  float r = std::ceil(std::pow(n_over_tau, root_dim));
+  
+  tau = std::vector<size_t>();
+  for (int l = dim-1; l >= 0; l--){
+    tau.push_back(std::pow(r, l) * min_size);
   }
   root->add_default_child();
 }
@@ -56,7 +58,7 @@ pointIndexArr QUASII::query_(KDNodePtr branch, point_t low, point_t high, size_t
 }
 
 KDNodePtrs QUASII::refine(KDNodePtr branch, point_t low, point_t high, size_t dim){
-  if (branch->get_partition_size() <= r[dim]) 
+  if (branch->get_partition_size() <= tau[dim]) 
     return new_KDNodePtrs(branch);
   KDNodePtrs ret = new_KDNodePtrs();
   KDNodePtrs cracks = new_KDNodePtrs();
@@ -76,7 +78,8 @@ KDNodePtrs QUASII::refine(KDNodePtr branch, point_t low, point_t high, size_t di
   }
   for (KDNodePtr s : *cracks) {
     bool intersection_not_empty = H::intersection(low[dim], high[dim], s->min_bound[dim], s->max_bound[dim]);
-    if (s->get_partition_size() > r[dim] && intersection_not_empty && low[dim] != s->max_bound[dim] && high[dim] != s->min_bound[dim]) {
+    if (s->get_partition_size() > tau[dim] && intersection_not_empty &&
+        low[dim] != s->max_bound[dim] && high[dim] != s->min_bound[dim]) {
       KDNodePtrs res = slice_artificial(s, low, high, dim);
       ret->insert(ret->end(), res->begin(), res->end());
     } else {
@@ -99,7 +102,7 @@ slice_type QUASII::determineSliceType(KDNodePtr branch, point_t low,
 
 KDNodePtrs QUASII::slice_artificial(KDNodePtr branch, point_t low,
                                     point_t high, size_t dim){
-  if (branch->get_partition_size() <= r[dim]) {
+  if (branch->get_partition_size() <= tau[dim]) {
     return std::make_shared<std::vector<KDNodePtr>>(std::vector<KDNodePtr>{branch});
   }
   

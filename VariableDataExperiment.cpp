@@ -15,15 +15,15 @@ valueIndexArr VariableDataExperiment::run_(tree_type tree){
   DataImporter importer;
   std::string data_set = E::data_sets[data_set_name];
   std::string query_set = E::query_sets[query_set_name];
-  queryList queries = importer.loadQueries(query_set, num_queries, dimensionality);
+  query_vec queries = importer.loadQueries(query_set, num_queries, dimensionality);
   int step = 1000;
   valueIndexArr ret;
   for (double i = 1000; i <= num_points; i += step){
     if (((int)i) % (num_points/10) == 0)
       std::cout << "number of points: " << i << "\n";
     pointVec data = importer.loadData(data_set, i, dimensionality);
-    // queryList queries = importer.loadQueries(data_set.second, i);
-    double time = E::measure_tree_cumulative(data, tree, queries, final_partition_size, strategy_switch_size, verification_tree);
+    // query_vec queries = importer.loadQueries(data_set.second, i);
+    double time = E::measure_tree_cumulative(data, tree, queries, get_final_partition_size(tree), strategy_switch_size, verification_tree);
     ret.push_back(valueIndex(i, time));
   }
   return ret;

@@ -33,3 +33,12 @@ pointVec GenData::generate_random_dataset(int amount_of_points, int dimensionali
   }
   return res;
 }
+
+std::vector<std::vector<double>> GenData::visualization(pointVec points) {
+    std::vector<std::vector<double>> res;
+  for (auto it = points.begin(); it != points.end(); it++){
+    point_t q = (*it);
+    res.push_back(q);
+  }
+  return res;
+}

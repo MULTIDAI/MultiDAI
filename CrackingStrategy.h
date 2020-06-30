@@ -15,6 +15,6 @@ protected:
   };
   query_loc query_location(point_t lower_bound, point_t middle, point_t upper_bound, point_t low, point_t high, size_t dim); 
 public:
-  virtual pointIndexArr crack(KDNodePtr branch, point_t low, point_t high, size_t dim, KDTree* tree);
+  virtual pointIndexArr crack(KDNodePtr branch, point_t low, point_t high, size_t dim, KDTree* tree, int level=-1);
 };
 

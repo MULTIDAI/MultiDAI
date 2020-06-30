@@ -30,6 +30,7 @@ public:
   pointIndexArr::iterator end;
   point_t min_bound;
   point_t max_bound;
+  size_t level = 0;
   size_t dim;
   std::map<value_t, KDNodePtr> CI;
 private:
@@ -56,8 +57,8 @@ public:
   ci_iter find_slice(value_t );
   // setter
   void add_slice(value_t, KDNodePtr);
-  void add_default_child();
-  void add_child(size_t dim_);
+  KDNodePtr add_default_child();
+  KDNodePtr add_child(size_t dim_);
 
 
   // conversions

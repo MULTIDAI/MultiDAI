@@ -8,7 +8,7 @@ void H::print_arr(std::vector< std::pair< std::vector< double >, size_t > > cons
     std::cout << "], ";
   }
   std::cout << "\n";
-}
+}\
 
   
 
@@ -124,6 +124,7 @@ void H::find_wrong_nodes(KDNodePtr branch) {
   for (uint dim = 0; dim < branch->min_bound.size(); dim++) {
     if (branch->min_bound[dim] > branch->max_bound[dim]) {
       OUT << "Nodes has wrong bounds\n";
+      OUT << "dim: " << dim << " min, max: " << branch->min_bound[dim] << ", " << branch->max_bound[dim] << " size of branch: " << branch->get_size() << "\n";
     }
   }
   for (const auto& any : branch->CI) {
@@ -131,7 +132,6 @@ void H::find_wrong_nodes(KDNodePtr branch) {
     find_wrong_nodes(n);
   }
 }
-
 
 KDNodePtrs H::find_leafs(KDNodePtr branch) {
   if (branch->CI.empty()){
@@ -143,4 +143,40 @@ KDNodePtrs H::find_leafs(KDNodePtr branch) {
     ret->insert(ret->end(), res->begin(), res->end());
   }
   return ret;
+}
+
+std::map<int, int> H::find_leaf_levels(KDTree* tree) {
+  std::map<int, int> ret = std::map<int, int>();
+  find_leaf_levels_rec(tree->root, 1, &ret);
+  OUT << "root number of children: " << tree->root->CI.size() << "\n";
+  std::map<int, int>::iterator it;
+
+  for ( it = ret.begin(); it != ret.end(); it++ )
+  {
+      std::cout << it->first  // string (key)
+                << ':'
+                << it->second   // string's value 
+                << std::endl ;
+  }
+  return ret;
+}
+
+void H::find_leaf_levels_rec(KDNodePtr branch, int level, std::map<int, int>* values) {
+  if(level == 6)
+    std::cout << "branch size: " << branch->get_partition_size() << "\n level : " << level << "\n";
+  for (std::pair<double, KDNodePtr> n : branch->CI) {
+    if (n.second->CI.empty()) {
+      auto location = values->find(level);
+      if ( location == values->end() ) {
+        OUT << level << " does not exist\n";
+        values->insert(std::pair<int, int>(level, 1));
+      } else {
+        // OUT << level << " does exist\n";
+        location->second++;
+      }
+    } else {
+      find_leaf_levels_rec(n.second, level+1, values);
+    }
+  }
+
 }

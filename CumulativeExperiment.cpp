@@ -17,8 +17,8 @@ valueIndexArr CumulativeExperiment::run_(tree_type tree){
   std::string data_set = E::data_sets[data_set_name];
   pointVec data = importer.loadData(data_set, num_points, dimensionality);
   std::string query_set = E::query_sets[query_set_name];
-  queryList queries = importer.loadQueries(query_set, num_queries, dimensionality);
-  std::vector<value_t> time = E::measure_convergence(tree, queries, data, final_partition_size, strategy_switch_size, verification_tree);
+  query_vec queries = importer.loadQueries(query_set, num_queries, dimensionality);
+  std::vector<value_t> time = E::measure_convergence(tree, queries, data, get_final_partition_size(tree), strategy_switch_size, verification_tree);
   valueIndexArr ret;
   value_t acc = 0;
   size_t counter = 0;
@@ -43,8 +43,8 @@ valueIndexArr CumulativeExperiment::run_(tree_type tree){
 //   for (double i = 0; i <= num_queries; i += step){
 //     if (((int)i) % (num_queries/10) == 0)
 //       std::cout << "number of queries: " << i << "\n";
-//     queryList queries = importer.loadQueries(query_set, i, dimensionality);
-//     // queryList queries = importer.loadQueries(data_set.second, i);
+//     query_vec queries = importer.loadQueries(query_set, i, dimensionality);
+//     // query_vec queries = importer.loadQueries(data_set.second, i);
 //     double time = E::measure_tree_cumulative(data, tree, queries, final_partition_size);
 //     ret.push_back(valueIndex(i, time));
 //   }

@@ -28,6 +28,8 @@ public:
   static bool intersection(value_t x_low, value_t x_high, value_t y_low, value_t y_high);
   static void find_wrong_nodes(KDNodePtr branch);
   static KDNodePtrs find_leafs(KDNodePtr branch);
+  static std::map<int, int> find_leaf_levels(KDTree* tree);
+  static void find_leaf_levels_rec(KDNodePtr branch, int level, std::map<int, int>* values);
 };
 #endif
 

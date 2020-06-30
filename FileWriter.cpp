@@ -8,12 +8,12 @@ using namespace std;
 
 
 
-filename FileWriter::write_file_data(filename file_name, valueIndexArr xs, std::string tree){
+filename FileWriter::write_file_data(filename file_name, valueIndexArr xs, std::string name){
   ofstream myfile;
   myfile.open (file_name);
   // file = std::regex_replace(file, std::regex("_"), "\\\\_");
-  std::replace(tree.begin(), tree.end(), ' ', '-');
-  myfile << tree << "\n";
+  std::replace(name.begin(), name.end(), ' ', '-');
+  myfile << name << "\n";
   for(auto it_x = xs.begin(); it_x < xs.end(); it_x++){
     myfile << it_x->first << " " << it_x->second << "\n";
   }

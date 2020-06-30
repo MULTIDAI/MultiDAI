@@ -8,10 +8,30 @@ Experiment::Experiment(std::string data_set_name_, std::string query_set_name_,
                        StaticKDTree* verification_tree_) :
   verification_tree(verification_tree_), data_set_name(data_set_name_), query_set_name(query_set_name_),
   num_points(num_points_), num_queries(num_queries_), dimensionality(dimensionality_), strategy_switch_size(strategy_switch_size_){
-  if (!file_exists(E::data_sets[data_set_name]))
+  if (!Experiment::file_exists(E::data_sets[data_set_name]))
     std::cout << "WARNING! " << data_set_name << " does not exist!\n";
-  if (!file_exists(E::query_sets[query_set_name]))
+  if (!Experiment::file_exists(E::query_sets[query_set_name]))
     std::cout << "WARNING! " << query_set_name << " does not exist!\n";
+  custom_final_partition_size = {};
+}
+
+long Experiment::get_final_partition_size(tree_type tree) {
+  auto it = custom_final_partition_size.find( tree );
+   if ( it == custom_final_partition_size.end() ) {
+      return final_partition_size;
+   }
+   else {
+      return it->second;
+   }
+}
+
+void Experiment::add_custom_final_partition_size(tree_type tree, long value) {
+  custom_final_partition_size[tree] = value;
+}
+
+void Experiment::add_custom_final_partition_size(std::vector<std::pair<tree_type, long>> trees) {
+  for (std::pair<tree_type, long> tree : trees)
+    custom_final_partition_size[tree.first] = tree.second;
 }
 
 std::string Experiment::generate_image_file_name(std::string extra) {
@@ -66,7 +86,7 @@ void Experiment::run(bool fast){
     valueIndexArr avg_vector;
     std::cout << "Running: " << E::tree_string(tree) << "\n";
     std::string out_name = generate_data_file_name(tree);
-    if (file_exists(out_name) && fast){
+    if (Experiment::file_exists(out_name) && fast){
       files.push_back(std::pair<std::string, tree_type>(out_name, tree));
       continue;
     }

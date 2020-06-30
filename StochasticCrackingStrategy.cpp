@@ -4,13 +4,15 @@
 pointIndexArr StochasticCrackingStrategy::crack_query_bounds(point_t low, point_t high,
                                                              KDNodePtrs strategic_cracks,
                                                              KDNodePtr branch,
-                                                             KDTree* tree, size_t dim){
+                                                             KDTree* tree, size_t dim, int level){
 
   
   KDNodePtr lower = strategic_cracks->at(0);
   KDNodePtr upper = strategic_cracks->at(1);
   KDNodePtrs cracks;
   size_t next_dim = (dim + 1) % low.size();
+  if (level > -1)
+    next_dim = level+1;
   query_loc l = query_location(lower->min_bound, upper->min_bound, upper->max_bound, low, high, dim);
   int i = 0;
   for (KDNodePtr n : (*strategic_cracks)){

@@ -1,7 +1,7 @@
 #include "LazyCrackingStrategy.h"
 
 
-pointIndexArr LazyCrackingStrategy::crack(KDNodePtr branch, point_t low, point_t high, size_t dim, KDTree* tree) {
+pointIndexArr LazyCrackingStrategy::crack(KDNodePtr branch, point_t low, point_t high, size_t dim, KDTree* tree, int level) {
   return crack_(branch, low, high, dim, tree);
 }
 

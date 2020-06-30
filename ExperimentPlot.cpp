@@ -23,6 +23,9 @@ void Plot::plot_to_image(std::vector<std::pair<std::string, tree_type>> *names, 
   if (plotcustomization.yrange.use)
     gp.sendLine("set yrange [" + std::to_string(plotcustomization.yrange.low) + ":" +
                 std::to_string(plotcustomization.yrange.high) +  "]");
+  if (plotcustomization.xrange.use)
+    gp.sendLine("set xrange [" + std::to_string(plotcustomization.xrange.low) + ":" +
+                std::to_string(plotcustomization.xrange.high) +  "]");
   if (plotcustomization.exp_y)
     gp.sendLine("set format y \"$10^{%T}$\""); 
   if (plotcustomization.logy)
@@ -56,7 +59,8 @@ void Plot::plot_to_image(std::vector<std::pair<std::string, tree_type>> *names, 
   std::string name;
   for (std::pair<std::string, tree_type> n : (*names)){
     std::cout << "adding name: " << n.first << "\n";
-    name += "'" + n.first + "' title columnheader(1) ps " + std::to_string(plotcustomization.point_size) + " lc \"" + E::tree_colors[n.second] + "\", ";
+    name += "'" + n.first + "' title columnheader(1) ps " + std::to_string(plotcustomization.point_size)
+      + " lc \"" + E::tree_colors[n.second] + "\" pt " + E::tree_point_types[n.second] + ", ";
   }
   std::cout << ("gnuplot: " + name) << "\n";
   gp.sendLine("plot " + name);

@@ -19,7 +19,7 @@ valueIndexArr PartitionSizeExperiment::run_(tree_type tree){
   std::string data_set = E::data_sets[data_set_name];
   pointVec data = importer.loadData(data_set, num_points, dimensionality);
   std::string query_set = E::query_sets[query_set_name];
-  queryList queries = importer.loadQueries(query_set, num_queries, dimensionality);
+  query_vec queries = importer.loadQueries(query_set, num_queries, dimensionality);
   return E::measure_final_partition_size(tree, queries, data, max_final_partition_size, step, init, strategy_switch_size, verification_tree);
 
 }
