@@ -8,7 +8,7 @@ void H::print_arr(std::vector< std::pair< std::vector< double >, size_t > > cons
     std::cout << "], ";
   }
   std::cout << "\n";
-}\
+}
 
   
 
@@ -148,22 +148,10 @@ KDNodePtrs H::find_leafs(KDNodePtr branch) {
 std::map<int, int> H::find_leaf_levels(KDTree* tree) {
   std::map<int, int> ret = std::map<int, int>();
   find_leaf_levels_rec(tree->root, 1, &ret);
-  OUT << "root number of children: " << tree->root->CI.size() << "\n";
-  std::map<int, int>::iterator it;
-
-  for ( it = ret.begin(); it != ret.end(); it++ )
-  {
-      std::cout << it->first  // string (key)
-                << ':'
-                << it->second   // string's value 
-                << std::endl ;
-  }
   return ret;
 }
 
 void H::find_leaf_levels_rec(KDNodePtr branch, int level, std::map<int, int>* values) {
-  if(level == 6)
-    std::cout << "branch size: " << branch->get_partition_size() << "\n level : " << level << "\n";
   for (std::pair<double, KDNodePtr> n : branch->CI) {
     if (n.second->CI.empty()) {
       auto location = values->find(level);

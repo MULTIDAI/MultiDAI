@@ -9,7 +9,9 @@
 #include "QUASII.h"
 #include "ModularCKDTree.h"
 #include "HybridKDTree.h"
+#include "HybridKDTree_level.h"
 #include "DD1CStochasticCrackingStrategy.h"
+#include "DD1RStochasticCrackingStrategy.h"
 #include "MDD1RStochasticCrackingStrategy.h"
 #include "LazyCrackingStrategy.h"
 
@@ -172,7 +174,7 @@ Test(LazyCKDTree, verify_query){
 Test(LazyCKDTree, verify_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 100);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 100);
   KDTree* tree = new LazyCKDTree(points);
   // E::exec_queries(tree, queries);
   for (query_t q : queries){
@@ -186,7 +188,7 @@ Test(LazyCKDTree, verify_queries){
 Test(LazyCKDTree, verify_queries_partition_size_10){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 100);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 100);
   KDTree* tree = new LazyCKDTree(points, 10);
   // E::exec_queries(tree, queries);
   for (query_t q : queries){
@@ -202,7 +204,7 @@ Test(LazyCKDTree, verify_queries_partition_size_10){
 Test(StaticKDTree, verify_static_KD_Tree_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 100);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 100);
   KDTree* tree = new StaticKDTree(points);
   for (query_t q : queries){
     pointIndexArr query_res = E::exec_query(tree, q);
@@ -213,7 +215,7 @@ Test(StaticKDTree, verify_static_KD_Tree_queries){
 Test(CKDTree, verify_KD_Tree_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 10);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 10);
   KDTree* tree = new CKDTree(points);
   for (query_t q : queries){
     pointIndexArr query_res = E::exec_query(tree, q);
@@ -224,7 +226,7 @@ Test(CKDTree, verify_KD_Tree_queries){
 Test(QUASII, verify_QUASII_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 10);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 10);
   KDTree* tree = new QUASII(points, 2);
   for (query_t q : queries){
     pointIndexArr query_res = E::exec_query(tree, q);
@@ -235,7 +237,7 @@ Test(QUASII, verify_QUASII_queries){
 Test(ModularCKDTree, verify_lazy_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 10);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 10);
   CrackingStrategy* C = new LazyCrackingStrategy();
   KDTree* tree = new ModularCKDTree(points, C);
   for (query_t q : queries){
@@ -248,7 +250,7 @@ Test(ModularCKDTree, verify_lazy_queries){
 Test(ModularCKDTree, init_dd1c) {
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 10);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 10);
   CrackingStrategy* C = new DD1CStochasticCrackingStrategy();
   KDTree* tree = new ModularCKDTree(points, C, 10);
   for (query_t q : queries){
@@ -262,7 +264,7 @@ Test(ModularCKDTree, init_dd1c) {
 Test(ModularCKDTree, verify_dd1c_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_100_queries.data", 100);
+  query_vec queries = importer.loadQueries("data/random_100_queries.data", 100);
   CrackingStrategy* C = new DD1CStochasticCrackingStrategy();
   KDTree* tree = new ModularCKDTree(points, C);
   for (query_t q : queries){
@@ -274,7 +276,7 @@ Test(ModularCKDTree, verify_dd1c_queries){
 Test(ModularCKDTree, verify_mdd1r_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_1k_queries.data", 100);
+  query_vec queries = importer.loadQueries("data/random_1k_queries.data", 100);
   CrackingStrategy* C = new MDD1RStochasticCrackingStrategy();
   KDTree* tree = new ModularCKDTree(points, C);
   for (query_t q : queries){
@@ -292,7 +294,7 @@ Test(ModularCKDTree, verify_mdd1r_queries){
 Test(HybridKDTree, verify_hmdd1r_queries){
   DataImporter importer;
   pointVec points = importer.loadData("data/random_60k_points.data", 6000);
-  queryList queries = importer.loadQueries("data/random_1k_queries.data", 100);
+  query_vec queries = importer.loadQueries("data/random_1k_queries.data", 100);
   CrackingStrategy* C = new MDD1RStochasticCrackingStrategy();
   KDTree* tree = new HybridKDTree(points, C, 100, 200);
   for (query_t q : queries){
@@ -307,4 +309,23 @@ Test(HybridKDTree, verify_hmdd1r_queries){
   }
 }
 
-
+Test(HybridKDTree, verify_query){
+  // std::cout << "Verifying query \n";
+  pointVec points;
+  point_t pt00 = {0.0, 0.0};
+  points.push_back(pt00);
+  point_t pt10 = {1.0, 0.0};
+  points.push_back(pt10);
+  point_t pt01 = {0.0, 1.0};
+  points.push_back(pt01);
+  point_t pt11 = {1.0, 1.0};
+  points.push_back(pt11);
+  CrackingStrategy *C = new DD1RStochasticCrackingStrategy();
+  HybridKDTree_level tree = HybridKDTree_level(points, C, 400, 1000);
+  point_t low = {0.0, 0.0};
+  point_t high = {1.0, 1.0};
+  pointIndexArr query_res = tree.query(low, high);
+  bool res = E::verify_query_res(low, high, points, query_res);
+  // std::cout << "Verification of query is: " << res << "\n"; 
+  cr_assert_eq(res, true);
+}

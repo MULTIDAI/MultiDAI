@@ -18,47 +18,44 @@ import matplotlib.pyplot as plt
 
 
 def createData(username, password, dec_low, dec_high, ra_low, ra_high, table_name, context, all_data):
+    CasJobs_Database = "DR16"
+    CasJobs_Query = "Select ra,dec into [myscratch:default]." + table_name + " from dr16.photoobjall "
 
-  CasJobs_Database = "DR16"
-  CasJobs_Query = "Select ra,dec into [myscratch:default]." + table_name + " from dr16.photoobjall "
+    if(not all_data):
+        CasJobs_Query += "where dec between " + str(dec_low) + " and " + str(dec_high) + " and ra between " + str(ra_low) + " and " + str(ra_high)
 
-  if(not all_data):
-    CasJobs_Query += "where dec between " + str(dec_low) + " and " + str(dec_high) + " and ra between " + str(ra_low) + " and " + str(ra_high)
-
-  login(username, password)
-  
-  jobId = CasJobs.submitJob(sql=CasJobs_Query, context=context)
-  jobDescription = CasJobs.waitForJob(jobId=jobId, verbose=True)
-  print("Data has been saved on sciserver at context myscratch with tablename " + table_name)
+    login(username, password)
+    
+    jobId = CasJobs.submitJob(sql=CasJobs_Query, context=context)
+    jobDescription = CasJobs.waitForJob(jobId=jobId, verbose=True)
+    print("Data has been saved on sciserver at context myscratch with tablename " + table_name)
 
 def createQueries(username, password, amount, table_name, context):
-  CasJobs_Query = "SELECT top " + str(amount) + " statement into [myscratch:default]." + table_name + " FROM sdssweblogs.SqlLog WHERE CHARINDEX('FROM PhotoObjAll', statement) > 0 AND CHARINDEX('p.dec BETWEEN', statement) > 0 AND CHARINDEX('p.ra BETWEEN', statement) > 0 AND access='Skyserver.Search.SQL'" 
-  login(username, password)
-  
-  jobId = CasJobs.submitJob(sql=CasJobs_Query, context=context)
-  jobDescription = CasJobs.waitForJob(jobId=jobId, verbose=True)
-  print("Data has been saved on sciserver at context myscratch with tablename " + table_name)
+    CasJobs_Query = "SELECT top " + str(amount) + " statement into [myscratch:default]." + table_name + " FROM sdssweblogs.SqlLog WHERE CHARINDEX('FROM PhotoObjAll', statement) > 0 AND CHARINDEX('p.dec BETWEEN', statement) > 0 AND CHARINDEX('p.ra BETWEEN', statement) > 0 AND access='Skyserver.Search.SQL'" 
+    login(username, password)
+    
+    jobId = CasJobs.submitJob(sql=CasJobs_Query, context=context)
+    jobDescription = CasJobs.waitForJob(jobId=jobId, verbose=True)
+    print("Data has been saved on sciserver at context myscratch with tablename " + table_name)
 
 def login(username, password):
-  token1 = Authentication.login(username, password);
-  user = Authentication.getKeystoneUserWithToken(token1)
-  print("userName=" + user.userName)
-  print("id=" + user.id)
-  iden = Authentication.identArgIdentifier()
-  print("ident="+iden)
+    token1 = Authentication.login(username, password);
+    user = Authentication.getKeystoneUserWithToken(token1)
+    print("userName=" + user.userName)
+    print("id=" + user.id)
+    iden = Authentication.identArgIdentifier()
+    print("ident="+iden)
 
 
 def downloadFile(username, password, tableName_, databaseName_, filename):
-  login(username, password)
-  print("Authentication complete, downloading table")
-  table = SkyQuery.getTable(tableName=tableName_, datasetName=databaseName_)
-  print("Download complete, writing to CSV")
-  table.to_csv(filename)
-  print("Table contents have been written to file " + filename)
-  print("Table info: \n", table)
-   
-
-  # print(Files.getFileServices())
+    login(username, password)
+    print("Authentication complete, downloading table")
+    table = SkyQuery.getTable(tableName=tableName_, datasetName=databaseName_)
+    print("Download complete, writing to CSV")
+    table.to_csv(filename)
+    print("Table contents have been written to file " + filename)
+    print("Table info: \n", table)
+    # print(Files.getFileServices())
 
 
 # print(jobId)
@@ -92,9 +89,9 @@ def downloadFile(username, password, tableName_, databaseName_, filename):
 # print(jobDescription)
 
 if __name__ == "__main__":
-  username = '542713'
-  password = '0b4xCEa0'
-  createData(username, password, 0, 1, 0, 1, 'sanity_check', 'DR16', True)
-  # createQueries(username, password, 100000, 'queries_test_new_func1', 'DR16')
-  downloadFile(username, password, "data_test_newfunc1", "myscratch", "data_test_newfunc.csv")
-  downloadFile(username, password, "queries_test_new_func1", "myscratch", "queries_test_new_func.csv")
+    username = '***'
+    password = '***'
+    # createData(username, password, 0, 1, 0, 1, 'data_test_newfunc1', 'DR16', False)
+    # createQueries(username, password, 100000, 'queries_test_new_func1', 'DR16')
+    downloadFile(username, password, "data_test_newfunc1", "myscratch", "data_test_newfunc.csv")
+    downloadFile(username, password, "queries_test_new_func1", "myscratch", "queries_test_new_func.csv")

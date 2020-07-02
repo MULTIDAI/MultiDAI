@@ -87,13 +87,13 @@ std::map<tree_type, std::string> E::tree_colors =
    {quasii, "#ffaa00"}, //  #ffaa00
    {dd1c, "#00f241"}, //  #00f241
    {dd1r, "#36593f"}, //  #36593f
-   {hdd1r, "#99ddff"}, //  #004d73
-   {hdd1r_l, "#004d73"}, //  #99ddff
    {hdd1c, "#a033ff"}, //  #a033ff
+   {hdd1c_l, "#00008B"},
+   {hdd1r, "#99ddff"}, //  #004d73
    {mdd1r, "#ff66a3"}, //  #ff66a3
    {kd, "black"}, // 
+   {hdd1r_l, "#660000"}, //  #99ddff
    {hmdd1r, "#ADFF2F"},
-   {hdd1c_l, "#FF4500"},
    {modularlazyckd, "#00008B"},
    {dd1r_cp, "#FF4500"},
   };
@@ -104,12 +104,12 @@ std::map<tree_type, std::string> E::tree_point_types =
    {quasii, "2"},  // 1 3
    {dd1c, "8"},    // 2 3
    {dd1r, "3"},   // 2
+   {hdd1c, "10"},   // 2 3
+   {hdd1c_l, "4"},
    {hdd1r, "4"},   // 2
    {hdd1r_l, "1"}, // 2
-   {hdd1c, "10"},   // 2 3
    {mdd1r, "2"},   // 2
    {kd, "4"},      // 1
-   {hdd1c_l, "9"},
    {hmdd1r, "6"},
    {modularlazyckd, "7"},
    {dd1r_cp, "8"},

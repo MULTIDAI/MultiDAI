@@ -8,7 +8,8 @@ KD-Tree and multiple adaptive indexing methods.
 The following primary make targets are available:
     make run\_experiments: Compiles and runs the experiments specified in experiments.cpp
     make run\_test: Compiles and runs the testsuite, tests are specified in Test.cpp
- 
+
+
 
 Use test framework: https://github.com/Snaipe/Criterion
     Install:

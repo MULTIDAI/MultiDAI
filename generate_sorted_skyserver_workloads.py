@@ -1,6 +1,6 @@
 
 
-skyserver_query_file_name = "data/sequential_1000_queries.data"
+skyserver_query_file_name = "data/skyserver_queries.data"
 
 data = [[float(x) for x in line.strip("\n").split()[2:]] for line in open(skyserver_query_file_name)]
 
